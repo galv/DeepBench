@@ -1,5 +1,7 @@
 #pragma once
 
+#include "cuda_helper.h"
+
 #include <vector>
 #include <numeric>
 #include <memory>
@@ -29,7 +31,7 @@ public:
     Tensor(std::vector<int> dims) : dims_(dims) {
         T* tmp_ptr;
         size_ = std::accumulate(dims_.begin(), dims_.end(), 1, std::multiplies<int>());
-        cudaMalloc(&tmp_ptr, sizeof(T) * size_);
+        CHECK_CUDA_ERROR(cudaMalloc(&tmp_ptr, sizeof(T) * size_));
 
         ptr_.reset(tmp_ptr, deleteCudaPtr());
     }

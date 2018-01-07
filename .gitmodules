@@ -1,3 +1,6 @@
 [submodule "code/arm/gemmlowp"]
 	path = code/arm/gemmlowp
 	url = https://github.com/google/gemmlowp.git
+[submodule "third_party/warp-ctc"]
+	path = third_party/warp-ctc
+	url = https://github.com/galv/warp-ctc.git

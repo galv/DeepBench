@@ -1,12 +1,14 @@
 
 NVCC=nvcc
-ARCH?=sm_52
+ARCH?=sm_61
 
 CUDA_PATH?=/usr/local/cuda
 CUDA_LIB64=$(CUDA_PATH)/lib64
 CUDNN_PATH?=/usr/local/cudnn
 NCCL_PATH?=/usr/local/nccl
 MPI_PATH?=/usr/local/openmpi
+# HACK: Hard code the path to my development directory.
+WARP_CTC_PATH?=/home/galv/development/cuda/DeepBench/third_party/warp-ctc/install
 BIN_DIR?=bin
 MKDIR=mkdir -p
 #BLAS
@@ -51,6 +53,17 @@ sparse:
 	$(MKDIR) $(BIN_DIR) 
 	$(CUDA_PATH)/bin/$(NVCC) sparse_bench.cu -o $(BIN_DIR)/sparse_bench -I $(KERNELS_DIR) -I $(CUDA_PATH)/include -L $(BLAS_PATH) -l$(BLAS_LIBRARY) -L $(CUDA_LIB64) -lcurand -lcusparse $(NVCC_ARCH_ARGS) -std=c++11
 
+ctc:
+ifndef WARP_CTC_PATH
+	$(error WARP_CTC_PATH not set for ctc build)
+endif
+	$(MKDIR) $(BIN_DIR)
+	$(CUDA_PATH)/bin/$(NVCC) ctc_bench.cu -o $(BIN_DIR)/ctc_bench \
+	-I $(CUDNN_PATH)/include -I $(WARP_CTC_PATH)/include/ \
+	-I $(CUDA_PATH)/include -L $(CUDNN_PATH) -L $(CUDA_LIB64) \
+	-L $(WARP_CTC_PATH)/lib/ -lcurand -lcudnn -lwarpctc $(NVCC_ARCH_ARGS) \
+	-Xcompiler \"-Wl,-rpath,$(WARP_CTC_PATH)/lib/\" \
+	-std=c++11 -g -G
 
 clean:
 	rm -rf $(BIN_DIR)
